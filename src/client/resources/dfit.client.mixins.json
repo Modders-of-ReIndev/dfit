@@ -1,9 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.fox2code.examplemod.client.mixins",
+  "package": "ru.marduk.dfit.client.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinBlockCheeseWheel"
+    "GuiInGameMixin"
   ]
 }

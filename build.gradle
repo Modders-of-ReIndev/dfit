@@ -11,18 +11,12 @@ buildscript {
 
 apply plugin: 'foxloader.dev'
 
-version '1.1.1'
+version '0.0.1'
 
 foxloader {
-    // forceReload = true
-    modId = "examplemod"
-    modName = "Fox Loader Example Mod"
+    modId = "dfit"
+    modName = "Dafuq is this"
     modVersion = project.version
-    modDesc = "An example mod for developers!!"
-    clientMod = "com.fox2code.examplemod.ExampleModClient"
-    serverMod = "com.fox2code.examplemod.ExampleModServer"
-    // Development tools don't like that both client and server define
-    // the same classes, so uncomment to disable the side inclusion.
-    // includeClient = false
-    // includeServer = false
+    modDesc = "HWYLA Reindev edition"
+    clientMod = "ru.marduk.dfit.client.ClientLoader"
 }
