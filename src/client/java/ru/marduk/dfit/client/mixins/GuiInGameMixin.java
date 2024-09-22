@@ -3,8 +3,8 @@ package ru.marduk.dfit.client.mixins;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.client.gui.*;
 import net.minecraft.src.client.physics.MovingObjectPosition;
-import net.minecraft.src.client.renderer.entity.RenderItem;
 import net.minecraft.src.game.block.Block;
+import net.minecraft.src.game.entity.EntityLiving;
 import net.minecraft.src.game.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,16 +12,16 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import ru.marduk.dfit.client.util.DrawUtil;
+import ru.marduk.dfit.client.gui.TooltipComponent;
+import ru.marduk.dfit.client.gui.line.TooltipTextComponent;
+import ru.marduk.dfit.client.gui.line.TooltipTextHealthComponent;
 
 @Mixin(GuiIngame.class)
 public class GuiInGameMixin extends Gui {
     @Unique
-    private final static RenderItem dfit$itemRenderer = new RenderItem();
-
+    private static final TooltipComponent dfit$tooltip = new TooltipComponent();
 
     @Shadow private Minecraft mc;
-    @Shadow private double scoreSecondaryY;
 
     public GuiInGameMixin() {
         super();
@@ -34,28 +34,26 @@ public class GuiInGameMixin extends Gui {
         if (result == null) {return;}
         ScaledResolution sr = ScaledResolution.instance;
 
-        int tooltipPositionY = (int)(this.scoreSecondaryY * 12.0);
-        int padding = 4;
-
         if (result.entityHit == null) {
-            /*System.out.print(result.blockX + " ");
-            System.out.print(result.blockY + " ");
-            System.out.print(result.blockZ + "\n");*/
             Block block = Block.blocksList[this.mc.theWorld.getBlockId(result.blockX, result.blockY, result.blockZ)];
             ItemStack stack = new ItemStack(block);
 
-            String blockName = StringTranslate.getInstance().translateKey(block.getBlockName() + ".name");
-            String blockSource = "§9Minecraft";
-            int nameWidth = this.mc.fontRenderer.getStringWidth(blockName);
-            int sourceWidth = this.mc.fontRenderer.getStringWidth(blockSource);
+            dfit$tooltip.clearComponents();
 
-            int width = Math.max(nameWidth, sourceWidth);
-            int tooltipPositionX = (sr.getScaledWidth() / 2) - ((22 + width + padding) / 2);
+            dfit$tooltip.addComponent(new TooltipTextComponent(stack.getDisplayName()));
+            dfit$tooltip.addComponent(new TooltipTextComponent("§9Minecraft", true));
 
-            DrawUtil.drawTooltipBox(tooltipPositionX, tooltipPositionY, 22 + width + padding, 24, 0xf0100010, 0x505000ff, 0x5028007F);
-            this.mc.fontRenderer.drawString(blockName, tooltipPositionX + 22, tooltipPositionY + padding, 16777215);
-            this.mc.fontRenderer.drawStringWithShadow(blockSource, tooltipPositionX + 22, tooltipPositionY + 13, 16777215);
-            dfit$itemRenderer.renderItemIntoGUI(this.mc.fontRenderer, this.mc.renderEngine, stack, tooltipPositionX + padding, tooltipPositionY + padding);
+            dfit$tooltip.drawCentered(sr.getScaledWidth() / 2, 12, stack);
+        } else {
+            EntityLiving entityHit = (EntityLiving)result.entityHit;
+
+            dfit$tooltip.clearComponents();
+
+            dfit$tooltip.addComponent(new TooltipTextComponent(StringTranslate.getInstance().translateKey(entityHit.getEntityName())));
+            dfit$tooltip.addComponent(new TooltipTextHealthComponent(entityHit.health));
+            dfit$tooltip.addComponent(new TooltipTextComponent("§9Minecraft", true));
+
+            dfit$tooltip.drawCentered(sr.getScaledWidth() / 2, 12, null);
         }
     }
 }
