@@ -3,6 +3,7 @@ package ru.marduk.dfit.client.gui;
 import net.minecraft.client.Minecraft;
 import net.minecraft.src.client.renderer.entity.RenderItem;
 import net.minecraft.src.game.item.ItemStack;
+import ru.marduk.dfit.Dfit;
 import ru.marduk.dfit.client.gui.line.ITooltipLineComponent;
 import ru.marduk.dfit.client.util.DrawUtil;
 
@@ -11,14 +12,28 @@ import java.util.*;
 public class TooltipComponent {
     private static final Minecraft mc = Minecraft.getInstance();
     private static final RenderItem itemRenderer = new RenderItem();
+    private static float sizeX = 0, sizeY = 0, positionX = 0, positionY = 0;
 
     private static final int padding = 4;
-    private int width = 0;
-    private int height = 0;
+    private static final float lerpValue = 0.3f;
+    private int width = 0, height = 0;
+    private int bg = 0xf0100010, grad1 = 0x505000ff, grad2 = 0x5028007F;
+    private int bgOpacity = 0, gradOpacity = 0;
+    private boolean fadeOut = true, actuallyVisible = false;
+
     private final List<ITooltipLineComponent> components = new ArrayList<>();
 
+    private float lerp(float a, float b, float t) {
+        return a + (b - a) * t;
+    }
+
+    private int lerp(int a, int b, float t) {
+        return (int)((float)a + ((float)b - (float)a) * t);
+    }
+
     private void recomputeSize() {
-        width = components.stream().max(Comparator.comparing(ITooltipLineComponent::width)).get().width();
+        Optional<ITooltipLineComponent> value = components.stream().max(Comparator.comparing(ITooltipLineComponent::width));
+        width = (value.map(ITooltipLineComponent::width).orElse(22));
         height = (int)(padding * 1.5) + (components.size() * 9);
     }
 
@@ -30,6 +45,56 @@ public class TooltipComponent {
         }
     }
 
+    private void interpolateStuff(int tooltipPositionX, int tooltipPositionY, int iconOffset) {
+        int targetWidth = (iconOffset + width + padding);
+        int targetHeight = height;
+
+        int targetX = tooltipPositionX - ((iconOffset + width + padding) / 2);
+
+        if (Dfit.config.animateGuis) {
+            sizeX = lerp(sizeX, (float) targetWidth, lerpValue);
+            sizeY = lerp(sizeY, (float) targetHeight, lerpValue);
+
+            positionX = lerp(positionX, (float) targetX, lerpValue);
+            positionY = lerp(positionY, (float) tooltipPositionY, lerpValue);
+
+            bgOpacity = lerp(bgOpacity, (fadeOut ? 0x00 : 0xf0), lerpValue);
+            gradOpacity = lerp(gradOpacity, (fadeOut ? 0x00 : 0x50), lerpValue);
+
+            bg = DrawUtil.modifyColorAlpha(bg, (byte) bgOpacity);
+            grad1 = DrawUtil.modifyColorAlpha(grad1, (byte) gradOpacity);
+            grad2 = DrawUtil.modifyColorAlpha(grad2, (byte) gradOpacity);
+            actuallyVisible = (gradOpacity > 15);
+        } else {
+            if (bg != 0xf0100010)
+                bg = 0xf0100010;
+            if (grad1 != 0x505000ff)
+                grad1 = 0x505000ff;
+            if (grad2 != 0x5028007F)
+                grad2 = 0x5028007F;
+
+            if (fadeOut) {
+                bgOpacity = 0;
+                gradOpacity = 0;
+            } else {
+                bgOpacity = 0xf0;
+                gradOpacity = 0x50;
+            }
+
+            sizeX = targetWidth;
+            sizeY = targetHeight;
+
+            positionX = targetX;
+            positionY = tooltipPositionY;
+
+            actuallyVisible = !fadeOut;
+        }
+    }
+
+    public void setVisible(boolean visible) {
+        this.fadeOut = !visible;
+    }
+
     public void clearComponents() {
         this.components.clear();
     }
@@ -39,13 +104,19 @@ public class TooltipComponent {
     }
 
     public void drawCentered(int tooltipPositionX, int tooltipPositionY, ItemStack itemStack) {
-        recomputeSize();
         int iconOffset = itemStack != null ? 22 : padding;
-        tooltipPositionX = tooltipPositionX - ((iconOffset + width + padding) / 2);
+        interpolateStuff(tooltipPositionX, tooltipPositionY, iconOffset);
 
-        DrawUtil.drawTooltipBox(tooltipPositionX, tooltipPositionY, iconOffset + width + padding, height, 0xf0100010, 0x505000ff, 0x5028007F);
-        renderStrings(tooltipPositionX + iconOffset, tooltipPositionY + padding);
-        if (itemStack != null)
-            itemRenderer.renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, itemStack, tooltipPositionX + padding, tooltipPositionY + padding);
+
+        if (gradOpacity != 0) {
+            DrawUtil.drawTooltipBox((int)positionX, (int)positionY, (int)sizeX, (int)sizeY, bg, grad1, grad2);
+            if (actuallyVisible) {
+                recomputeSize();
+
+                renderStrings((int)positionX + iconOffset, (int)positionY + padding);
+                if (itemStack != null)
+                    itemRenderer.renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, itemStack, (int)positionX + padding, (int)positionY + padding);
+            }
+        }
     }
 }

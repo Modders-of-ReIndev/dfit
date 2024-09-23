@@ -5,6 +5,26 @@ import net.minecraft.src.client.renderer.entity.OpenGlHelper;
 import org.lwjgl.opengl.GL11;
 
 public class DrawUtil {
+    private static byte[] toByteArray(int value) {
+        return new byte[] {
+                (byte)(value >> 24),
+                (byte)(value >> 16),
+                (byte)(value >> 8),
+                (byte)value };
+    }
+
+    private static int fromByteArray(byte[] bytes) {
+        return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
+    }
+
+    public static int modifyColorAlpha(int color, byte a) {
+        byte[] byteColor = toByteArray(color);
+
+        byteColor[0] = a;
+
+        return fromByteArray(byteColor);
+    }
+
     public static void drawGradientRect(int x, int y, int w, int h, int grad1, int grad2) {
         float zLevel = 0.0f;
         float f = (float) (grad1 >> 24 & 255) / 255.0F;

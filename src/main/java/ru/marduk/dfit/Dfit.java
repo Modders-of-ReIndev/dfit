@@ -5,7 +5,7 @@ import com.fox2code.foxloader.loader.Mod;
 import ru.marduk.dfit.theme.TooltipThemes;
 
 public abstract class Dfit extends Mod {
-    DfitModConfig config = new DfitModConfig();
+    public static final DfitModConfig config = new DfitModConfig();
 
     @Override
     public void onPreInit() {
@@ -15,5 +15,8 @@ public abstract class Dfit extends Mod {
     public static class DfitModConfig {
         @ConfigEntry(configName = "Theme")
         public TooltipThemes.Theme theme = TooltipThemes.Theme.Default;
+
+        @ConfigEntry(configName = "Animate GUIs")
+        public boolean animateGuis = true;
     }
 }
