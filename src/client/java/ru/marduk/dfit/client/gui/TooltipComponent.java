@@ -5,6 +5,7 @@ import net.minecraft.src.client.renderer.entity.RenderItem;
 import net.minecraft.src.game.item.ItemStack;
 import ru.marduk.dfit.Dfit;
 import ru.marduk.dfit.client.gui.line.ITooltipLineComponent;
+import ru.marduk.dfit.client.util.ConfigTheme;
 import ru.marduk.dfit.client.util.DrawUtil;
 
 import java.util.*;
@@ -13,11 +14,11 @@ public class TooltipComponent {
     private static final Minecraft mc = Minecraft.getInstance();
     private static final RenderItem itemRenderer = new RenderItem();
     private static float sizeX = 0, sizeY = 0, positionX = 0, positionY = 0;
-
+    private static ConfigTheme theme = ConfigTheme.INSTANCE;
     private static final int padding = 4;
     private static final float lerpValue = 0.3f;
     private int width = 0, height = 0;
-    private int bg = 0xf0100010, grad1 = 0x505000ff, grad2 = 0x5028007F;
+    private int bg = theme.bg, grad1 = theme.grad1, grad2 = theme.grad2;
     private int bgOpacity = 0, gradOpacity = 0;
     private boolean fadeOut = true, actuallyVisible = false;
 
@@ -66,12 +67,12 @@ public class TooltipComponent {
             grad2 = DrawUtil.modifyColorAlpha(grad2, (byte) gradOpacity);
             actuallyVisible = (gradOpacity > 15);
         } else {
-            if (bg != 0xf0100010)
-                bg = 0xf0100010;
-            if (grad1 != 0x505000ff)
-                grad1 = 0x505000ff;
-            if (grad2 != 0x5028007F)
-                grad2 = 0x5028007F;
+            if (bg != theme.bg)
+                bg = theme.bg;
+            if (grad1 != theme.grad1)
+                grad1 = theme.grad1;
+            if (grad2 != theme.grad2)
+                grad2 = theme.grad2;
 
             if (fadeOut) {
                 bgOpacity = 0;

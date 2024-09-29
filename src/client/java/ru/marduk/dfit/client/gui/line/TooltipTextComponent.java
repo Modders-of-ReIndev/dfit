@@ -1,6 +1,7 @@
 package ru.marduk.dfit.client.gui.line;
 
 import net.minecraft.client.Minecraft;
+import ru.marduk.dfit.client.util.ConfigTheme;
 
 public class TooltipTextComponent implements ITooltipLineComponent{
     public final int renderedTextWidth;
@@ -18,7 +19,11 @@ public class TooltipTextComponent implements ITooltipLineComponent{
     }
 
     public void render(int x, int y, int width, int height) {
-        Minecraft.getInstance().fontRenderer.drawString(this.text, x, y, 16777215);
+        if (ConfigTheme.INSTANCE.shadow) {
+            Minecraft.getInstance().fontRenderer.drawStringWithShadow(this.text, x, y, 16777215);
+        } else {
+            Minecraft.getInstance().fontRenderer.drawString(this.text, x, y, 16777215);
+        }
     }
 
     @Override

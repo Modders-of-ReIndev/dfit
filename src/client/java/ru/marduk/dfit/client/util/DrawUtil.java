@@ -5,7 +5,7 @@ import net.minecraft.src.client.renderer.entity.OpenGlHelper;
 import org.lwjgl.opengl.GL11;
 
 public class DrawUtil {
-    private static byte[] toByteArray(int value) {
+    public static byte[] toByteArray(int value) {
         return new byte[] {
                 (byte)(value >> 24),
                 (byte)(value >> 16),
@@ -13,7 +13,7 @@ public class DrawUtil {
                 (byte)value };
     }
 
-    private static int fromByteArray(byte[] bytes) {
+    public static int fromByteArray(byte[] bytes) {
         return bytes[0] << 24 | (bytes[1] & 0xFF) << 16 | (bytes[2] & 0xFF) << 8 | (bytes[3] & 0xFF);
     }
 
@@ -56,8 +56,10 @@ public class DrawUtil {
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h, int bg, int grad1, int grad2) {
-        drawGradientRect(x + 1, y, w - 1, 1, bg, bg);
-        drawGradientRect(x + 1, y + h, w - 1, 1, bg, bg);
+        ConfigTheme theme = ConfigTheme.INSTANCE;
+
+        drawGradientRect(x + (theme.bevel ? 1 : 0), y, w - (theme.bevel ? 1 : -1), 1, bg, bg);
+        drawGradientRect(x + (theme.bevel ? 1 : 0), y + h, w - (theme.bevel ? 1 : -1), 1, bg, bg);
         drawGradientRect(x + 1, y + 1, w - 1, h - 1, bg, bg);// center
         drawGradientRect(x, y + 1, 1, h - 1, bg, bg);
         drawGradientRect(x + w, y + 1, 1, h - 1, bg, bg);
