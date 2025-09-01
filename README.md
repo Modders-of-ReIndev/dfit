@@ -1,3 +1,5 @@
+# Outdated! Using [ICY](https://modrinth.com/mod/icy-rind) on modern versions is advised.
+
 # DFIT: Dafuq is this
 [![Java CI with Gradle](https://github.com/0marduk/dfit/actions/workflows/gradle.yml/badge.svg)](https://github.com/0marduk/dfit/actions/workflows/gradle.yml)
 
